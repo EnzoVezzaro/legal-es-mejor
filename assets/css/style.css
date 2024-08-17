@@ -1284,6 +1284,7 @@ img {
   text-transform:capitalize;
   color:#696b7e;
   text-align: left;
+  white-space: nowrap;
   transition:all 500ms ease;
   -moz-transition:all 500ms ease;
   -webkit-transition:all 500ms ease;
