@@ -4443,6 +4443,7 @@ div#mCSB_1_container{
 .news-block-one .inner-box .lower-content .post-info li a{
   display: inline-block;
   color: #696b7e;
+  font-size: small;
 }
 
 .news-block-one .inner-box .lower-content .post-info li a:hover{
