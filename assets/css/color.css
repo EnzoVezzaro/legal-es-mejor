@@ -388,6 +388,30 @@
   color: #e41e2f;
 }
 
+.social-feed .inner-content .single-item.patreon-feed .title-box{
+	background: #f96854;
+}
+
+.social-feed .inner-content .single-item.patreon-feed .title-box .icon-box{
+	color: #f96854;
+}
+
+.social-feed .inner-content .single-item.patreon-feed .inner-box h5 i{
+	color: #f96854;
+}
+
+.social-feed .inner-content .single-item.patreon-feed .inner-box .text a{
+	color: #f96854;
+}
+
+.social-feed .inner-content .single-item.patreon-feed .inner-box .post-info li a:hover{
+  color: #f96854;
+}
+
+.social-feed .inner-content .single-item.patreon-feed .inner-box .share a:hover{
+  color: #f96854;
+}
+
 .social-feed .inner-content .single-item.facebook-feed .title-box{
 	background: #3b5998;
 }
