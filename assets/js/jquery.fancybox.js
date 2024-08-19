@@ -542,7 +542,12 @@
                 if ( /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream ) {
 
                     // iOS has problems for input elements inside fixed containers,
-                    // the workaround is to apply `position: fixed` to `<body>` element,
+                    // the workaround is to apply `position: fixed` to `<body>
+
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5FNZTBNX"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->` element,
                     // unfortunately, this makes it lose the scrollbars and forces address bar to appear.
 
                     if ( firstItem.type !== 'image' ) {
