@@ -393,7 +393,7 @@
                                         </div>
                                         
                                         <div class="form-group message-btn">
-                                            <button type="submit" class="theme-btn style-one">Enviar Denuncia</button>
+                                            <button type="submit" class="theme-btn style-one" id="submitDenunciaButton" disabled>Enviar Denuncia</button>
                                         </div>
                                         <div id="formStatus" style="margin-top: 15px;"></div>
                                     </form>
@@ -643,7 +643,7 @@
             const typeOtherText = document.getElementById('type_other_text');
             const evidenceYesRadio = document.getElementById('evidence_yes');
             const evidenceNoRadio = document.getElementById('evidence_no');
-            const submitButton = denunciaForm.querySelector('button[type="submit"]');
+            const submitButton = document.getElementById('submitDenunciaButton');
             const evidenceErrorDiv = document.createElement('div');
             evidenceErrorDiv.style.color = 'red';
             evidenceErrorDiv.style.marginTop = '10px';
@@ -656,10 +656,24 @@
             function toggleContactInfo() {
                 if (anonymousYesRadio.checked) {
                     contactInfoSection.style.display = 'none';
+                    // Clear and disable contact info fields when anonymous
+                    document.getElementById('nombre_completo').value = '';
+                    document.getElementById('direccion').value = '';
+                    document.getElementById('email_contacto').value = '';
+                    document.getElementById('telefono').value = '';
+                    document.getElementById('nombre_completo').disabled = true;
+                    document.getElementById('direccion').disabled = true;
+                    document.getElementById('email_contacto').disabled = true;
+                    document.getElementById('telefono').disabled = true;
                 } else {
                     contactInfoSection.style.display = 'block';
+                    // Enable contact info fields when not anonymous
+                    document.getElementById('nombre_completo').disabled = false;
+                    document.getElementById('direccion').disabled = false;
+                    document.getElementById('email_contacto').disabled = false;
+                    document.getElementById('telefono').disabled = false;
                 }
-                validateForm(); // Call validation after changing anonymity
+                checkFormValidity(); // Call validation after changing anonymity
             }
 
             // Function to toggle 'Other' denuncia type text input
@@ -672,45 +686,86 @@
                     typeOtherText.required = false;
                     typeOtherText.value = ''; // Clear value when hidden
                 }
+                checkFormValidity(); // Call validation after changing 'Other' checkbox
             }
 
-            // Function to validate form based on anonymity and evidence
-            function validateForm() {
+            // Function to check overall form validity and enable/disable submit button
+            function checkFormValidity() {
                 const isAnonymous = anonymousYesRadio.checked;
                 const hasEvidence = evidenceYesRadio.checked;
+                let isValid = true;
 
-                console.log('validateForm called:');
-                console.log('  isAnonymous:', isAnonymous);
-                console.log('  hasEvidence:', hasEvidence);
-
+                // Rule 1: Cannot be anonymous if providing evidence
                 if (isAnonymous && hasEvidence) {
                     evidenceErrorDiv.style.display = 'block';
-                    submitButton.disabled = true;
-                    console.log('  Button disabled: true');
+                    isValid = false;
                 } else {
                     evidenceErrorDiv.style.display = 'none';
-                    submitButton.disabled = false;
-                    console.log('  Button disabled: false');
                 }
+
+                // Rule 2: Contact info required if not anonymous
+                if (!isAnonymous) {
+                    const nombreCompleto = document.getElementById('nombre_completo').value.trim();
+                    const direccion = document.getElementById('direccion').value.trim();
+                    const emailContacto = document.getElementById('email_contacto').value.trim();
+                    const telefono = document.getElementById('telefono').value.trim();
+
+                    if (!nombreCompleto || !direccion || !emailContacto || !telefono) {
+                        isValid = false;
+                    }
+                }
+
+                // Rule 3: Description of facts is always required
+                const descripcionHechos = document.getElementById('descripcion_hechos').value.trim();
+                if (!descripcionHechos) {
+                    isValid = false;
+                }
+
+                // Rule 4: At least one denuncia type must be selected
+                const denunciaTypesChecked = document.querySelectorAll('input[name="denuncia_type"]:checked').length > 0;
+                if (!denunciaTypesChecked) {
+                    isValid = false;
+                }
+
+                // Rule 5: If "Otra" denuncia type is selected, its text field must not be empty
+                if (typeOtherCheckbox.checked && !typeOtherText.value.trim()) {
+                    isValid = false;
+                }
+
+                submitButton.disabled = !isValid;
             }
 
-            // Initial state
+            // Initial state setup
             toggleContactInfo();
             toggleOtherDenunciaText();
-            validateForm(); // Initial validation check
+            checkFormValidity(); // Initial validation check
 
-            // Event listeners for radio buttons and checkbox
+            // Event listeners for all relevant form elements
             anonymousYesRadio.addEventListener('change', toggleContactInfo);
             anonymousNoRadio.addEventListener('change', toggleContactInfo);
-            typeOtherCheckbox.addEventListener('change', toggleOtherDenunciaText);
-            evidenceYesRadio.addEventListener('change', validateForm); // Add listener for evidence radio
-            evidenceNoRadio.addEventListener('change', validateForm); // Add listener for evidence radio
+
+            document.getElementById('nombre_completo').addEventListener('input', checkFormValidity);
+            document.getElementById('direccion').addEventListener('input', checkFormValidity);
+            document.getElementById('email_contacto').addEventListener('input', checkFormValidity);
+            document.getElementById('telefono').addEventListener('input', checkFormValidity);
+
+            document.getElementById('descripcion_hechos').addEventListener('input', checkFormValidity);
+
+            document.querySelectorAll('input[name="denuncia_type"]').forEach(checkbox => {
+                checkbox.addEventListener('change', checkFormValidity);
+            });
+            typeOtherCheckbox.addEventListener('change', toggleOtherDenunciaText); // This already calls checkFormValidity internally
+            typeOtherText.addEventListener('input', checkFormValidity);
+
+            evidenceYesRadio.addEventListener('change', checkFormValidity);
+            evidenceNoRadio.addEventListener('change', checkFormValidity);
+
 
             denunciaForm.addEventListener('submit', async function (event) {
                 event.preventDefault();
 
                 // Re-validate just before submission to be safe
-                validateForm();
+                checkFormValidity(); // Ensure the button state is correct
                 if (submitButton.disabled) {
                     formStatus.innerHTML = '<p style="color: red;">Por favor, corrige los errores antes de enviar.</p>';
                     return;
@@ -954,6 +1009,7 @@
                 denunciaForm.reset();
                 toggleContactInfo(); // Reset visibility
                 toggleOtherDenunciaText(); // Reset visibility
+                checkFormValidity(); // Re-check validity after reset
             });
         });
     </script>

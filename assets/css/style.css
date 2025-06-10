@@ -362,6 +362,10 @@ img {
   background: #252638;
 }
 
+.theme-btn:disabled {
+  cursor: not-allowed;
+}
+
 .theme-btn:before{
   position: absolute;
   content: '';
