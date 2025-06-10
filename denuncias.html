@@ -62,6 +62,105 @@
     <link href="assets/css/color.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/responsive.css" rel="stylesheet">
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more responsive */
+            max-width: 800px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            -webkit-animation-name: animatetop;
+            -webkit-animation-duration: 0.4s;
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Add Animation */
+        @-webkit-keyframes animatetop {
+            from {top: -300px; opacity: 0} 
+            to {top: 0; opacity: 1}
+        }
+
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .pdf-preview {
+            width: 100%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            color: white;
+        }
+
+        #sendEmailButton {
+            background-color: #28a745; /* Green */
+        }
+
+        #sendEmailButton:hover {
+            background-color: #218838;
+        }
+
+        #downloadPdfButton {
+            background-color: #007bff; /* Blue */
+        }
+
+        #downloadPdfButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>    
 
 
@@ -393,10 +492,26 @@
                                         </div>
                                         
                                         <div class="form-group message-btn">
-                                            <button type="submit" class="theme-btn style-one" id="submitDenunciaButton" disabled>Enviar Denuncia</button>
+                                            <button type="submit" class="theme-btn style-one" id="submitDenunciaButton" disabled>Generar Denuncia</button>
                                         </div>
                                         <div id="formStatus" style="margin-top: 15px;"></div>
                                     </form>
+
+                                    <!-- The Modal -->
+                                    <div id="denunciaModal" class="modal">
+                                        <!-- Modal content -->
+                                        <div class="modal-content">
+                                            <span class="close-button">&times;</span>
+                                            <h2>Previsualización de Denuncia</h2>
+                                            <div class="pdf-preview">
+                                                <iframe id="pdfViewer" src="" frameborder="0" width="100%" height="500px"></iframe>
+                                            </div>
+                                            <div class="modal-buttons">
+                                                <button id="sendEmailButton" class="theme-btn style-one">Enviar Denuncia</button>
+                                                <button id="downloadPdfButton" class="theme-btn style-one">Descargar Denuncia</button>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <h3 class="mb-4" style="margin-top: 50px;">📤 Envío del formulario</h3>
                                     <p>Este formulario puede ser enviado por las siguientes vías:</p>
@@ -406,7 +521,7 @@
                                         <li>Formulario web: <a href="https://legalesmejor.com.do/denuncias">https://legalesmejor.com.do/denuncias</a></li>
                                     </ul>
 
-                                    <h3>🔒 Confidencialidad y Protección de Datos</h3>
+                                    <h3 class="mt-4 mb-4">🔒 Confidencialidad y Protección de Datos</h3>
                                     <p>Toda la información recibida será tratada con estricta confidencialidad. En caso de denuncia anónima, no se requerirá ningún dato personal. La Fundación garantiza la protección de los datos personales conforme a la Ley 172-13 sobre Protección de Datos Personales en la República Dominicana.</p>
                                 </div>
                             </div>
@@ -626,9 +741,9 @@
     <script src="assets/js/nav-tool.js"></script>
     <script src="assets/js/isotope.js"></script>
     <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-
     <!-- main-js -->
     <script src="assets/js/script.js"></script>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
 
     <script>
         const { PDFDocument, rgb, StandardFonts } = PDFLib;
@@ -761,35 +876,28 @@
             evidenceNoRadio.addEventListener('change', checkFormValidity);
 
 
+            let generatedPdfBlob = null; // To store the generated PDF blob
+
             denunciaForm.addEventListener('submit', async function (event) {
                 event.preventDefault();
 
-                // Re-validate just before submission to be safe
-                checkFormValidity(); // Ensure the button state is correct
+                checkFormValidity();
                 if (submitButton.disabled) {
-                    formStatus.innerHTML = '<p style="color: red;">Por favor, corrige los errores antes de enviar.</p>';
+                    formStatus.innerHTML = '<p style="color: red;">Por favor, corrige los errores antes de generar la denuncia.</p>';
                     return;
                 }
 
-                formStatus.innerHTML = '<p>Generando PDF de la denuncia...</p>';
+                formStatus.innerHTML = '<p>Generando previsualización de la denuncia...</p>';
 
                 const formData = new FormData(denunciaForm);
                 const data = {};
                 let isAnonymous = formData.get('anonymous_option') === 'yes';
-
-                let htmlBody = "<h2>Nueva Denuncia Recibida</h2>";
-                htmlBody += `<p><strong>Denuncia Anónima:</strong> ${isAnonymous ? 'Sí' : 'No'}</p>`;
 
                 if (!isAnonymous) {
                     data.nombre_completo = formData.get('nombre_completo');
                     data.direccion = formData.get('direccion');
                     data.email_contacto = formData.get('email_contacto');
                     data.telefono = formData.get('telefono');
-                    htmlBody += `<h3>Información de Contacto:</h3>
-                                 <p><strong>Nombre:</strong> ${data.nombre_completo || 'No proporcionado'}</p>
-                                 <p><strong>Dirección:</strong> ${data.direccion || 'No proporcionado'}</p>
-                                 <p><strong>Email:</strong> ${data.email_contacto || 'No proporcionado'}</p>
-                                 <p><strong>Teléfono:</strong> ${data.telefono || 'No proporcionado'}</p>`;
                 }
 
                 const denunciaTypes = [];
@@ -800,57 +908,25 @@
                     denunciaTypes.push(`Otra: ${formData.get('denuncia_type_other_text')}`);
                 }
                 data.denuncia_type = denunciaTypes;
-                htmlBody += `<h3>Tipo de Denuncia:</h3><ul>${denunciaTypes.map(type => `<li>${type}</li>`).join('')}</ul>`;
 
                 data.descripcion_hechos = formData.get('descripcion_hechos');
-                htmlBody += `<h3>Descripción de los Hechos:</h3><p>${data.descripcion_hechos.replace(/\n/g, '<br>') || 'No proporcionado'}</p>`;
-
                 data.evidence_option = formData.get('evidence_option');
-                htmlBody += `<p><strong>Cuenta con evidencia:</strong> ${data.evidence_option === 'yes' ? 'Sí' : 'No'}</p>`;
-
-                // --- IMPORTANT SECURITY WARNING --- 
-                // The API Key below is a placeholder and should be replaced with your actual Resend API key.
-                // For production, DO NOT hardcode your API key in client-side JavaScript.
-                // Consider using a backend proxy to make this API call securely.
-                /*
-                const apiKey = 're_xxxxxxxxx'; // <-- REPLACE WITH YOUR ACTUAL RESEND API KEY
-                const fromEmail = 'Legal Es Mejor Denuncias <onboarding@resend.dev>'; // Replace with your verified Resend domain/email
-                const toEmail = 'hola@legalesmejor.com.do'; // Replace with the actual recipient email
-
-                if (apiKey === 're_xxxxxxxxx') {
-                    formStatus.innerHTML = '<p style="color: red;"><strong>Error de Configuración:</strong> La API Key de Resend no ha sido configurada. Por favor, edita el script en denuncias.html y reemplaza \'re_xxxxxxxxx\' con tu API Key real.</p>';
-                    console.error('Resend API Key is a placeholder. Please replace it.');
-                    return;
-                }
-                    */
 
                 try {
-                    formStatus.innerHTML = '<p style="color: green;">Cargando plantilla PDF y llenando datos por posición...</p>';
-
-                    // Generate a unique ID including a human-readable date in YYYYMMDD format
-                    const now = new Date();
-                    const year = now.getFullYear();
-                    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-                    const day = now.getDate().toString().padStart(2, '0');
-                    const formattedDate = `${year}${month}${day}`;
-                    const uniqueId = 'DEN-' + formattedDate + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-
                     const existingPdfBytes = await fetch('assets/pdf/Modulo Denuncia 2025.pdf').then(res => res.arrayBuffer());
                     const pdfDoc = await PDFDocument.load(existingPdfBytes);
-                    console.log('doc loaded: ', pdfDoc);
 
                     const pages = pdfDoc.getPages();
-                    console.log('pages: ', pages);
-
                     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
                     const fontSize = 10;
-                    const textColor = rgb(0, 0, 0); // Black color
-                    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica); // Embed font once
-                    const maxWidth = 500; // Max width for description text
+                    const textColor = rgb(0, 0, 0);
+                    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+                    const maxWidth = 500;
 
-                    // Custom function to split text into lines
                     const splitTextIntoLines = (text, font, maxWidth, fontSize) => {
-                        const words = text.split(' ');
+                        // Replace all newline characters with a space to avoid encoding issues
+                        const cleanedText = text.replace(/\n/g, ' '); 
+                        const words = cleanedText.split(' ');
                         const lines = [];
                         let currentLine = '';
 
@@ -899,26 +975,27 @@
                         return lines.filter(line => line.trim() !== ''); // Filter out any truly empty lines
                     };
 
-                    // Add module unique id to the footer of each page
-                    const footerY = 35; // Estimated Y coordinate for the footer
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                    const day = now.getDate().toString().padStart(2, '0');
+                    const formattedDate = `${year}${month}${day}`;
+                    const uniqueId = 'DEN-' + formattedDate + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+                    const footerY = 35;
 
                     pages.forEach(page => {
                         page.drawText(uniqueId, { x: 73, y: footerY, font, size: fontSize, color: textColor });
                     });
 
-                    // Access specific pages for form content
-                    const page3 = pages[2]; // Assuming page 3 is index 2
-                    const page4 = pages[3]; // Assuming page 4 is index 3
+                    const page3 = pages[2];
+                    const page4 = pages[3];
 
-                    // Page 3 content
-                    // 1. ¿Deseas realizar esta denuncia de forma anónima?
                     if (isAnonymous) {
-                        page3.drawText('X', { x: 73, y: 585, font, size: fontSize, color: textColor }); // "Sí" checkbox
+                        page3.drawText('X', { x: 73, y: 585, font, size: fontSize, color: textColor });
                     } else {
-                        page3.drawText('X', { x: 73, y: 570, font, size: fontSize, color: textColor }); // "No" checkbox
+                        page3.drawText('X', { x: 73, y: 570, font, size: fontSize, color: textColor });
                     }
 
-                    // 2. Información de contacto (if not anonymous)
                     if (!isAnonymous) {
                         page3.drawText(data.nombre_completo || '', { x: 215, y: 490, font, size: fontSize, color: textColor });
                         page3.drawText(data.direccion || '', { x: 180, y: 460, font, size: fontSize, color: textColor });
@@ -926,40 +1003,32 @@
                         page3.drawText(data.telefono || '', { x: 205, y: 400, font, size: fontSize, color: textColor });
                     }
 
-                    // 3. Tipo de denuncia (checkboxes)
-                    const checkboxYOffset = 15; // Vertical spacing between checkboxes
-                    let currentCheckboxY = 200; // Starting Y position for the first checkbox
-                    const checkboxX = 73; // X position for checkboxes
-
                     const denunciaTypePositions = {
-                        'Abuso policial por posesión de cannabis': 305, // Estimated Y
-                        'Negación de servicios médicos por estigma': 290, // Estimated Y
-                        'Detención arbitraria': 275, // Estimated Y
-                        'Violación de derechos humanos': 260, // Estimated Y
-                        'Otra:': 250 // Estimated Y for 'Otra' checkbox
+                        'Abuso policial por posesión de cannabis': 305,
+                        'Negación de servicios médicos por estigma': 290,
+                        'Detención arbitraria': 275,
+                        'Violación de derechos humanos': 260,
+                        'Otra:': 250
                     };
 
                     data.denuncia_type.forEach(type => {
                         if (type.startsWith('Otra:')) {
-                            page3.drawText('X', { x: checkboxX, y: denunciaTypePositions['Otra:'] - 3, font, size: fontSize, color: textColor });
+                            page3.drawText('X', { x: 73, y: denunciaTypePositions['Otra:'] - 3, font, size: fontSize, color: textColor });
                             const otraLines = splitTextIntoLines(type, helveticaFont, 400, fontSize);
                             const linesForOtra = otraLines.slice(0, 4);
-                            console.log('lines: ', linesForOtra);
                             linesForOtra.forEach((line, i) => {
-                                page3.drawText(line.substring(type.indexOf(':') + 2), { x: checkboxX + 50, y: denunciaTypePositions['Otra:'] - 15 * i, font, size: fontSize, color: textColor }); // Text for 'Otra'
+                                page3.drawText(line.substring(type.indexOf(':') + 2), { x: 73 + 50, y: denunciaTypePositions['Otra:'] - 15 * i, font, size: fontSize, color: textColor });
                             });
                         } else if (denunciaTypePositions[type]) {
-                            page3.drawText('X', { x: checkboxX, y: denunciaTypePositions[type], font, size: fontSize, color: textColor });
+                            page3.drawText('X', { x: 73, y: denunciaTypePositions[type], font, size: fontSize, color: textColor });
                         }
                     });
 
-                    // 4. Descripción de los hechos
                     const descriptionText = data.descripcion_hechos || '';
                     const descriptionLines = splitTextIntoLines(descriptionText, helveticaFont, maxWidth, fontSize);
-                    console.log('descriptionLines_ ', descriptionLines);
                     
-                    let descriptionYPage3 = 150; // Starting Y position for description on page 3
-                    const descriptionX = 73; // X position for description
+                    let descriptionYPage3 = 150;
+                    const descriptionX = 73;
 
                     const maxLinesPage3 = 3;
                     const linesForPage3 = descriptionLines.slice(0, maxLinesPage3);
@@ -967,29 +1036,152 @@
 
                     linesForPage3.forEach(line => {
                         page3.drawText(line, { x: descriptionX, y: descriptionYPage3, font: helveticaFont, size: fontSize, color: textColor });
-                        descriptionYPage3 -= (fontSize + 20); // Adjust line height
+                        descriptionYPage3 -= (fontSize + 20);
                     });
 
-                    // Page 4 content
-                    let descriptionYPage4 = 650; // Starting Y position for description on page 4 (adjust as needed)
+                    let descriptionYPage4 = 650;
                     linesForPage4.forEach(line => {
                         page4.drawText(line, { x: descriptionX, y: descriptionYPage4, font: helveticaFont, size: fontSize, color: textColor });
-                        descriptionYPage4 -= (fontSize + 20); // Adjust line height
+                        descriptionYPage4 -= (fontSize + 20);
                     });
 
-                    // 5. ¿Cuentas con evidencia?
                     if (data.evidence_option === 'yes') {
-                        page4.drawText('X', { x: 73, y: 475, font, size: fontSize, color: textColor }); // "Sí" checkbox
+                        page4.drawText('X', { x: 73, y: 475, font, size: fontSize, color: textColor });
                     } else {
-                        page4.drawText('X', { x: 73, y: 460, font, size: fontSize, color: textColor }); // "No" checkbox
+                        page4.drawText('X', { x: 73, y: 460, font, size: fontSize, color: textColor });
                     }
 
-                    // Save the modified PDF
                     const pdfBytes = await pdfDoc.save();
+                    generatedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+                    const pdfUrl = URL.createObjectURL(generatedPdfBlob);
 
-                    // Create a Blob and download the PDF
-                    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-                    const url = URL.createObjectURL(blob);
+                    document.getElementById('pdfViewer').src = pdfUrl;
+                    document.getElementById('denunciaModal').style.display = 'flex';
+                    formStatus.innerHTML = ''; // Clear status message
+
+                } catch (error) {
+                    console.error('Error generating PDF preview:', error);
+                    formStatus.innerHTML = `<p style="color: red;">Error al generar la previsualización del PDF: ${error.message || 'Verifica la consola para más detalles.'}</p>`;
+                }
+            });
+
+            // Modal elements
+            const modal = document.getElementById('denunciaModal');
+            const closeButton = document.querySelector('.close-button');
+            const sendEmailButton = document.getElementById('sendEmailButton');
+            const downloadPdfButton = document.getElementById('downloadPdfButton');
+
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+                if (generatedPdfBlob) {
+                    URL.revokeObjectURL(document.getElementById('pdfViewer').src);
+                    generatedPdfBlob = null;
+                }
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    if (generatedPdfBlob) {
+                        URL.revokeObjectURL(document.getElementById('pdfViewer').src);
+                        generatedPdfBlob = null;
+                    }
+                }
+            });
+
+            sendEmailButton.addEventListener('click', async () => {
+                if (!generatedPdfBlob) {
+                    alert('No hay PDF para enviar. Por favor, genera la denuncia primero.');
+                    return;
+                }
+
+                const formData = new FormData(denunciaForm);
+                const isAnonymous = formData.get('anonymous_option') === 'yes';
+                const nombreCompleto = formData.get('nombre_completo') || 'Anónimo';
+                const emailContacto = formData.get('email_contacto') || 'anonimo@legalesmejor.com.do';
+                const direccion = formData.get('direccion') || 'N/A';
+                const telefono = formData.get('telefono') || 'N/A';
+                const descripcionHechos = formData.get('descripcion_hechos') || 'No proporcionada';
+                const evidenceOption = formData.get('evidence_option') === 'yes' ? 'Sí' : 'No';
+
+                const denunciaTypes = [];
+                document.querySelectorAll('input[name="denuncia_type"]:checked').forEach(checkbox => {
+                    denunciaTypes.push(checkbox.value);
+                });
+                if (typeOtherCheckbox.checked && formData.get('denuncia_type_other_text')) {
+                    denunciaTypes.push(`Otra: ${formData.get('denuncia_type_other_text')}`);
+                }
+                const formattedDenunciaTypes = denunciaTypes.length > 0 ? denunciaTypes.join(', ') : 'No especificado';
+
+                let subject = `Nueva Denuncia de Cannabis - ${nombreCompleto}`;
+
+                // Convert PDF Blob to Base64
+                const reader = new FileReader();
+                reader.readAsDataURL(generatedPdfBlob);
+                reader.onloadend = async function() {
+                    const base64data = reader.result.split(',')[1]; // Get only the base64 part
+
+                    const emailBody = `
+                        <h2>Detalles de la Denuncia</h2>
+                        <p><strong>Opción Anónima:</strong> ${isAnonymous ? 'Sí' : 'No'}</p>
+                        ${!isAnonymous ? `
+                            <p><strong>Nombre Completo:</strong> ${nombreCompleto}</p>
+                            <p><strong>Dirección:</strong> ${direccion}</p>
+                            <p><strong>Correo Electrónico:</strong> ${emailContacto}</p>
+                            <p><strong>Teléfono/Celular:</strong> ${telefono}</p>
+                        ` : ''}
+                        <p><strong>Tipo de Denuncia:</strong> ${formattedDenunciaTypes}</p>
+                        <p><strong>Descripción de los Hechos:</strong></p>
+                        <p>${descripcionHechos}</p>
+                        <p><strong>¿Cuenta con evidencia?:</strong> ${evidenceOption}</p>
+                    `;
+
+                    try {
+                        const result = await Email.send({
+                            Host: "smtp.smtp2go.com",
+                            Username: "hola@legalesmejor.com.do", // This should be your SMTP2GO sender email
+                            Password: "api-01602EB6AA214D14A1DB9A20FEA8E393", // Your SMTP2GO API Key
+                            To: 'hola@legalesmejor.com.do', // Recipient email
+                            From: emailContacto, // Sender email (can be the user's email if not anonymous)
+                            Subject: subject,
+                            Body: emailBody,
+                            Attachments: [
+                                {
+                                    name: `Denuncia_LegalEsMejor_${new Date().toISOString().replace(/[:.]/g, '-')}.pdf`,
+                                    data: base64data
+                                }
+                            ]
+                        });
+
+                        if (result === 'OK') {
+                            alert('Denuncia enviada con éxito a través de SMTP2GO.');
+                            modal.style.display = 'none';
+                            denunciaForm.reset();
+                            toggleContactInfo();
+                            toggleOtherDenunciaText();
+                            checkFormValidity();
+                            if (generatedPdfBlob) {
+                                URL.revokeObjectURL(document.getElementById('pdfViewer').src);
+                                generatedPdfBlob = null;
+                            }
+                        } else {
+                            console.error('Error sending denuncia via SMTP2GO:', result);
+                            alert(`Error al enviar la denuncia: ${result}`);
+                        }
+                    } catch (error) {
+                        console.error('Network error sending denuncia via SMTP2GO:', error);
+                        alert(`Error de red al enviar la denuncia: ${error.message || 'Verifica tu conexión a internet.'}`);
+                    }
+                };
+                reader.onerror = function(error) {
+                    console.error('Error converting PDF to Base64:', error);
+                    alert('Error al preparar el PDF para el envío.');
+                };
+            });
+
+            downloadPdfButton.addEventListener('click', () => {
+                if (generatedPdfBlob) {
+                    const url = URL.createObjectURL(generatedPdfBlob);
                     const a = document.createElement('a');
                     a.href = url;
                     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -998,18 +1190,10 @@
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-
-                    formStatus.innerHTML = '<p style="color: green;">¡PDF generado y descargado con éxito!</p>';
-
-                } catch (error) {
-                    console.error('Error filling PDF by position:', error);
-                    formStatus.innerHTML = `<p style="color: red;">Error al generar el PDF: ${error.message || 'Verifica la consola para más detalles.'}</p>`;
+                    alert('PDF descargado con éxito.');
+                } else {
+                    alert('No hay PDF para descargar. Por favor, genera la denuncia primero.');
                 }
-
-                denunciaForm.reset();
-                toggleContactInfo(); // Reset visibility
-                toggleOtherDenunciaText(); // Reset visibility
-                checkFormValidity(); // Re-check validity after reset
             });
         });
     </script>
