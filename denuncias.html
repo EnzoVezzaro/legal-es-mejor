@@ -743,8 +743,6 @@
     <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
     <!-- main-js -->
     <script src="assets/js/script.js"></script>
-    <script src="https://smtpjs.com/v3/smtp.js"></script>
-
     <script>
         const { PDFDocument, rgb, StandardFonts } = PDFLib;
 
@@ -1090,94 +1088,447 @@
             });
 
             sendEmailButton.addEventListener('click', async () => {
-                if (!generatedPdfBlob) {
-                    alert('No hay PDF para enviar. Por favor, genera la denuncia primero.');
-                    return;
-                }
+    if (!generatedPdfBlob) {
+        alert('No hay PDF para enviar. Por favor, genera la denuncia primero.');
+        return;
+    }
 
-                const formData = new FormData(denunciaForm);
-                const isAnonymous = formData.get('anonymous_option') === 'yes';
-                const nombreCompleto = formData.get('nombre_completo') || 'Anónimo';
-                const emailContacto = formData.get('email_contacto') || 'anonimo@legalesmejor.com.do';
-                const direccion = formData.get('direccion') || 'N/A';
-                const telefono = formData.get('telefono') || 'N/A';
-                const descripcionHechos = formData.get('descripcion_hechos') || 'No proporcionada';
-                const evidenceOption = formData.get('evidence_option') === 'yes' ? 'Sí' : 'No';
+    const formData = new FormData(denunciaForm);
+    const isAnonymous = formData.get('anonymous_option') === 'yes';
+    const nombreCompleto = formData.get('nombre_completo') || 'Anónimo';
+    const emailContacto = formData.get('email_contacto') || 'anonimo@legalesmejor.com.do';
+    const direccion = formData.get('direccion') || 'N/A';
+    const telefono = formData.get('telefono') || 'N/A';
+    const descripcionHechos = formData.get('descripcion_hechos') || 'No proporcionada';
+    const evidenceOption = formData.get('evidence_option') === 'yes' ? 'Sí' : 'No';
 
-                const denunciaTypes = [];
-                document.querySelectorAll('input[name="denuncia_type"]:checked').forEach(checkbox => {
-                    denunciaTypes.push(checkbox.value);
-                });
-                if (typeOtherCheckbox.checked && formData.get('denuncia_type_other_text')) {
-                    denunciaTypes.push(`Otra: ${formData.get('denuncia_type_other_text')}`);
-                }
-                const formattedDenunciaTypes = denunciaTypes.length > 0 ? denunciaTypes.join(', ') : 'No especificado';
+    const denunciaTypes = [];
+    document.querySelectorAll('input[name="denuncia_type"]:checked').forEach(checkbox => {
+        denunciaTypes.push(checkbox.value);
+    });
+    if (typeOtherCheckbox.checked && formData.get('denuncia_type_other_text')) {
+        denunciaTypes.push(`Otra: ${formData.get('denuncia_type_other_text')}`);
+    }
+    const formattedDenunciaTypes = denunciaTypes.length > 0 ? denunciaTypes.join(', ') : 'No especificado';
 
-                let subject = `Nueva Denuncia de Cannabis - ${nombreCompleto}`;
+    let subject = `Nueva Denuncia de Cannabis - ${nombreCompleto}`;
 
-                // Convert PDF Blob to Base64
-                const reader = new FileReader();
-                reader.readAsDataURL(generatedPdfBlob);
-                reader.onloadend = async function() {
-                    const base64data = reader.result.split(',')[1]; // Get only the base64 part
+    // Convert PDF Blob to Base64
+    const reader = new FileReader();
+    reader.readAsDataURL(generatedPdfBlob);
+    reader.onloadend = async function() {
+        const base64data = reader.result.split(',')[1]; // Get only the base64 part
+        const fileName = `Denuncia_LegalEsMejor_${new Date().toISOString().replace(/[:.]/g, '-')}.pdf`;
 
-                    const emailBody = `
-                        <h2>Detalles de la Denuncia</h2>
-                        <p><strong>Opción Anónima:</strong> ${isAnonymous ? 'Sí' : 'No'}</p>
-                        ${!isAnonymous ? `
-                            <p><strong>Nombre Completo:</strong> ${nombreCompleto}</p>
-                            <p><strong>Dirección:</strong> ${direccion}</p>
-                            <p><strong>Correo Electrónico:</strong> ${emailContacto}</p>
-                            <p><strong>Teléfono/Celular:</strong> ${telefono}</p>
-                        ` : ''}
-                        <p><strong>Tipo de Denuncia:</strong> ${formattedDenunciaTypes}</p>
-                        <p><strong>Descripción de los Hechos:</strong></p>
-                        <p>${descripcionHechos}</p>
-                        <p><strong>¿Cuenta con evidencia?:</strong> ${evidenceOption}</p>
-                    `;
+        const emailBody = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Denuncia de Cannabis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header img {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 15px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .alert-banner {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+            color: #ffffff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(220, 53, 69, 0.3);
+            border: 2px solid #ffffff;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #2c5530;
+        }
+        
+        .section-title {
+            color: #2c5530;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title::before {
+            content: "📋";
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .info-grid {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 140px;
+            margin-right: 15px;
+        }
+        
+        .info-value {
+            color: #212529;
+            flex: 1;
+        }
+        
+        .anonymous-badge {
+            background: linear-gradient(45deg, #ffc107, #ffcd39);
+            color: #212529;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .description-section {
+            background-color: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .description-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #495057;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .evidence-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .evidence-yes {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .evidence-no {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .footer {
+            background-color: #2c5530;
+            color: #fff;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+        
+        .footer a {
+            color: #a8d5ba;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .footer a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        .attachment-section {
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+            border: 2px dashed #2196f3;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .attachment-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .attachment-info {
+            color: #1976d2;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .attachment-note {
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .timestamp {
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .content {
+                padding: 25px 20px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .info-label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <a href="https://legalesmejor.com.do" target="_blank">
+                <img src="https://legalesmejor.com.do/assets/images/logo-horizontal.png" alt="Legal es Mejor Logo" />
+            </a>
+            <h1>Nueva Denuncia Recibida</h1>
+        </div>
+        
+        <div class="content">
+            <div class="alert-banner">
+                🚨 DENUNCIA DE USUARIOS 🚨
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Información del Denunciante</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Tipo de Denuncia:</span>
+                        <span class="info-value">
+                            ${isAnonymous ? '<span class="anonymous-badge">Anónima</span>' : 'Identificada'}
+                        </span>
+                    </div>
+                    ${!isAnonymous ? `
+                        <div class="info-item">
+                            <span class="info-label">Nombre Completo:</span>
+                            <span class="info-value">${nombreCompleto}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Correo Electrónico:</span>
+                            <span class="info-value">${emailContacto}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Teléfono/Celular:</span>
+                            <span class="info-value">${telefono}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Dirección:</span>
+                            <span class="info-value">${direccion}</span>
+                        </div>
+                    ` : `
+                        <div class="info-item">
+                            <span class="info-value" style="font-style: italic; color: #6c757d;">
+                                ℹ️ El denunciante optó por mantener su identidad anónima
+                            </span>
+                        </div>
+                    `}
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Detalles de la Denuncia</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Categoría:</span>
+                        <span class="info-value">${formattedDenunciaTypes}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Evidencia Disponible:</span>
+                        <span class="info-value">
+                            <span class="evidence-indicator ${evidenceOption === 'Sí' ? 'evidence-yes' : 'evidence-no'}">
+                                ${evidenceOption === 'Sí' ? '✅ Sí' : '❌ No'}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Descripción de los Hechos</h2>
+                <div class="description-section">
+                    <div class="description-text">${descripcionHechos}</div>
+                </div>
+            </div>
+            
+            <div class="attachment-section">
+                <span class="attachment-icon">📎</span>
+                <div class="attachment-info">Documento PDF Adjunto</div>
+                <div class="attachment-note">
+                    Se ha adjuntado el documento oficial de la denuncia en formato PDF.<br>
+                    Nombre del archivo: Denuncia_LegalEsMejor_${new Date().toISOString().replace(/[:.]/g, '-')}.pdf
+                </div>
+            </div>
+            
+            <div class="timestamp">
+                📅 Denuncia recibida el ${new Date().toLocaleDateString('es-DO', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Legal es Mejor</strong></p>
+            <p>Transformamos vidas, regulando el futuro</p>
+            <p><a href="https://legalesmejor.com.do" target="_blank">www.legalesmejor.com.do</a></p>
+            <p style="font-size: 12px; margin-top: 15px; opacity: 0.8;">
+                Este correo fue generado automáticamente por el sistema de denuncias.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+`;
 
-                    try {
-                        const result = await Email.send({
-                            Host: "smtp.smtp2go.com",
-                            Username: "hola@legalesmejor.com.do", // This should be your SMTP2GO sender email
-                            Password: "api-01602EB6AA214D14A1DB9A20FEA8E393", // Your SMTP2GO API Key
-                            To: 'hola@legalesmejor.com.do', // Recipient email
-                            From: emailContacto, // Sender email (can be the user's email if not anonymous)
-                            Subject: subject,
-                            Body: emailBody,
-                            Attachments: [
-                                {
-                                    name: `Denuncia_LegalEsMejor_${new Date().toISOString().replace(/[:.]/g, '-')}.pdf`,
-                                    data: base64data
-                                }
-                            ]
-                        });
+        const elasticEmailApiKey = '780B0EE09D0087FD923C25B86921B7F95839C6FB1D2BE594F92F56C2FBC7B7F16A328F8491F5111FF5CD1D39713C1D79';
+        const elasticEmailEndpoint = 'https://api.elasticemail.com/v2/email/send';
 
-                        if (result === 'OK') {
-                            alert('Denuncia enviada con éxito a través de SMTP2GO.');
-                            modal.style.display = 'none';
-                            denunciaForm.reset();
-                            toggleContactInfo();
-                            toggleOtherDenunciaText();
-                            checkFormValidity();
-                            if (generatedPdfBlob) {
-                                URL.revokeObjectURL(document.getElementById('pdfViewer').src);
-                                generatedPdfBlob = null;
-                            }
-                        } else {
-                            console.error('Error sending denuncia via SMTP2GO:', result);
-                            alert(`Error al enviar la denuncia: ${result}`);
-                        }
-                    } catch (error) {
-                        console.error('Network error sending denuncia via SMTP2GO:', error);
-                        alert(`Error de red al enviar la denuncia: ${error.message || 'Verifica tu conexión a internet.'}`);
-                    }
-                };
-                reader.onerror = function(error) {
-                    console.error('Error converting PDF to Base64:', error);
-                    alert('Error al preparar el PDF para el envío.');
-                };
+        // Create FormData for multipart/form-data
+        const emailFormData = new FormData();
+        emailFormData.append('apikey', elasticEmailApiKey);
+        emailFormData.append('from', 'legalesmejorrd@hotmail.com');
+        emailFormData.append('to', 'legalesmejorrd@hotmail.com');
+        emailFormData.append('subject', subject);
+        emailFormData.append('bodyHtml', emailBody);
+        emailFormData.append('isTransactional', 'true');
+        
+        // Create a proper File object for the attachment
+        const pdfFile = new File([generatedPdfBlob], fileName, { type: 'application/pdf' });
+        emailFormData.append('attachments', pdfFile);
+
+        try {
+            const response = await fetch(elasticEmailEndpoint, {
+                method: 'POST',
+                body: emailFormData // Don't set Content-Type header, let browser set it
             });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                alert('Denuncia enviada con éxito.');
+                modal.style.display = 'none';
+                denunciaForm.reset();
+                toggleContactInfo();
+                toggleOtherDenunciaText();
+                checkFormValidity();
+                if (generatedPdfBlob) {
+                    URL.revokeObjectURL(document.getElementById('pdfViewer').src);
+                    generatedPdfBlob = null;
+                }
+            } else {
+                console.error('Error sending denuncia via Elastic Email:', result);
+                alert(`Error al enviar la denuncia: ${result.error || 'Verifica la consola para más detalles.'}`);
+            }
+        } catch (error) {
+            console.error('Network error sending denuncia via Elastic Email:', error);
+            alert(`Error de red al enviar la denuncia: ${error.message || 'Verifica tu conexión a internet.'}`);
+        }
+    };
+    reader.onerror = function(error) {
+        console.error('Error converting PDF to Base64:', error);
+        alert('Error al preparar el PDF para el envío.');
+    };
+});
 
             downloadPdfButton.addEventListener('click', () => {
                 if (generatedPdfBlob) {
