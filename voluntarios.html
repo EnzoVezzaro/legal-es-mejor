@@ -62,6 +62,61 @@
     <link href="assets/css/color.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/responsive.css" rel="stylesheet">
+    <style>
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .checklist-item.active {
+            background-color: #e6ffe6;
+            border-color: #aaffaa;
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        .checklist-item label {
+            flex-grow: 1;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        .checklist-item button {
+            margin-left: 10px;
+        }
+        .checklist-item.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .contact-info {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .contact-info i {
+            margin-right: 5px;
+        }
+        .confetti-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .modal {
+            display: none; /* Ensure modal is hidden by default */
+        }
+    </style>
 </head>    
 
 
@@ -466,52 +521,6 @@
                                     Conéctate con nosotros, descubre las oportunidades de voluntariado que tenemos para ti y ayúdanos a construir un futuro más justo y equitativo para todos.
                                 </p>
                             </div>
-                            <br><br>
-                            <!--
-                            <div class="highlights-box">
-                                <div class="single-item-carousel owl-carousel owl-theme owl-dots-none">
-                                    <div class="row clearfix">
-                                        <div class="col-lg-6 col-md-6 col-sm-12 image-column">
-                                            <div class="image-box">
-                                                <figure class="image"><img src="assets/images/resource/highlights-1.png" alt=""></figure>
-                                                <div class="icon-box"><i class="flaticon-diamond"></i></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6 col-md-6 col-sm-12 text-column">
-                                            <div class="text">
-                                                <h3>Plan Diamante</h3>
-                                                <p>There are many variations of passages like lorem ipsums available but that majority have suffered alteration in some form.</p>
-                                                <ul class="list clearfix">
-                                                    <li><i class="flaticon-bird"></i>Administrative Practices</li>
-                                                    <li><i class="flaticon-bird"></i>Carry out the Duties</li>
-                                                    <li><i class="flaticon-bird"></i>Develop the Municipaity</li>
-                                                    <li><i class="flaticon-bird"></i>Maintain Financial Integrity</li>
-                                                    <li><i class="flaticon-bird"></i>Represent the Public</li>
-                                                </ul>
-                                                <a href="index.html">Ver en Patreon<i class="flaticon-right-arrow"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="download-box">
-                                <h3>Download Resources</h3>
-                                <ul class="download-list clearfix">
-                                    <li>
-                                        <div class="icon-box"><img src="assets/images/icons/icon-1.png" alt=""></div>
-                                        <h5>Guia Ciudadana "Legal es Mejor"</h5>
-                                        <span>pdf (14 mb)</span>
-                                        <a href="index.html">Download</a>
-                                    </li>
-                                    <li>
-                                        <div class="icon-box"><img src="assets/images/icons/icon-1.png" alt=""></div>
-                                        <h5>Reporte Anual "Legal es Mejor"</h5>
-                                        <span>pdf (14 mb)</span>
-                                        <a href="index.html">Download</a>
-                                    </li>
-                                </ul>
-                            </div>-->
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-12 col-sm-12 sidebar-side">
@@ -593,6 +602,95 @@
             </div>
         </section>
         <!-- department-details end -->
+
+        <!-- solutions-section -->
+        <section class="solutions-section" style="padding-bottom: 125px;">
+            <div class="pattern-box">
+                <div class="pattern-1" style="background-image: url(assets/images/shape/shape-2.png);"></div>
+                <div class="pattern-2" style="background-image: url(assets/images/shape/shape-3.png);"></div>
+                <div class="pattern-3" style="background-image: url(assets/images/shape/shape-3.png);"></div>
+                <div class="pattern-4 float-bob-y" style="background-image: url(assets/images/shape/shape-4.png);"></div>
+            </div>
+            <div class="auto-container">
+                <div class="sec-title centred">
+                    <h6><i class="flaticon-diagram"></i><span>Voluntariado</span><i class="flaticon-diagram"></i></h6>
+                    <h2>¿Quieres ser voluntario?</h2>
+                    <div class="title-shape"></div>
+                </div>
+                <div class="inner-container">
+                    <div class="lower-box clearfix">
+                        <div class="bg-layer" style="background-image: url(assets/images/background/bg-1.jpg);"></div>
+                        <div class="text pull-left" style="max-width: 80%;">
+                            <div class="icon-box"><i class="flaticon-idea"></i></div>
+                            <h3>Conéctate con nosotros</h3>
+                            <p>descubre las oportunidades de voluntariado que tenemos para ti y ayúdanos a construir un futuro más justo y equitativo para todos.</p>
+                        </div>
+                        <div class="btn-box pull-right" style="margin-top: 20px;">
+                            <a href="#" class="theme-btn" data-toggle="modal" data-target="#volunteerModal">Únete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- solutions-section end -->
+
+        <!-- Modal -->
+        <div class="modal fade" id="volunteerModal" tabindex="-1" role="dialog" aria-labelledby="volunteerModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="volunteerModalLabel">¡Bienvenid@ al equipo de voluntariado de Legal Es Mejor!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>Para ser parte oficialmente, completá estos pasos. Cada acción desbloquea la siguiente. Cuando hayas completado todos, podrás confirmar tu membresía. 💚</p>
+                <br>
+                <ul class="checklist">
+                  <li id="step1" class="checklist-item">
+                    <input type="checkbox" id="check1" disabled>
+                    <label for="check1">Ver presentación de Legal Es Mejor</label>
+                    <button class="btn btn-link view-presentation">Ver Presentación</button>
+                  </li>
+                  <li id="step2" class="checklist-item">
+                    <input type="checkbox" id="check2" disabled>
+                    <label for="check2">Ver video sobre regulación del cannabis</label>
+                    <button class="btn btn-link view-video" disabled>Ver Video</button>
+                  </li>
+                  <li id="step3" class="checklist-item">
+                    <input type="checkbox" id="check3" disabled>
+                    <label for="check3">Firmar y descargar acuerdo de membresía</label>
+                    <button class="btn btn-link sign-agreement" disabled>Firmar y Descargar</button>
+                  </li>
+                  <li id="step4" class="checklist-item">
+                    <input type="checkbox" id="check4" disabled>
+                    <label for="check4">Acepto la contribución de membresía de RD$1,500.00</label>
+                  </li>
+                  <li id="step5" class="checklist-item">
+                    <input type="checkbox" id="check5" disabled>
+                    <label for="check5">Enviar membresía firmada</label>
+                    <div class="contact-info">
+                      <p><i class="fab fa-whatsapp"></i> +1 829 764 9570</p>
+                      <p><i class="far fa-envelope"></i> legalesmejorrd@hotmail.com</p>
+                    </div>
+                    <button class="btn btn-link confirm-sent" disabled>Confirmar Envío</button>
+                  </li>
+                </ul>
+                <div class="confetti-animation" style="display: none;"></div>
+                <p id="successMessage" style="display: none; text-align: center; font-weight: bold; color: green;">
+                  ¡Gracias por unirte a esta causa!
+                  <br>
+                  Recibirá un email de confirmación dentro de 24 horas 💚
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmMembershipBtn" disabled>Confirmar membresía</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- main-footer -->
         <footer class="main-footer">
@@ -734,6 +832,123 @@
 
     <!-- main-js -->
     <script src="assets/js/script.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const steps = [
+                { id: 'step1', checkbox: 'check1', button: '.view-presentation' },
+                { id: 'step2', checkbox: 'check2', button: '.view-video' },
+                { id: 'step3', checkbox: 'check3', button: '.sign-agreement' },
+                { id: 'step4', checkbox: 'check4', button: null }, // Checkbox only
+                { id: 'step5', checkbox: 'check5', button: '.confirm-sent' }
+            ];
+
+            const confirmMembershipBtn = $('#confirmMembershipBtn');
+            const successMessage = $('#successMessage');
+            const confettiAnimation = $('.confetti-animation');
+
+            function updateChecklistStatus() {
+                let allChecked = true;
+                for (let i = 0; i < steps.length; i++) {
+                    const step = steps[i];
+                    const checkbox = $(`#${step.checkbox}`);
+                    const listItem = $(`#${step.id}`);
+                    const button = step.button ? listItem.find(step.button) : null;
+
+                    // All checkboxes are disabled by default in HTML
+                    // Only enable buttons/checkboxes if the previous step is checked
+                    if (i === 0) {
+                        // Step 1 is active by default, its button is enabled
+                        listItem.addClass('active');
+                        if (button) button.prop('disabled', false);
+                    } else {
+                        const prevStepCheckbox = $(`#${steps[i-1].checkbox}`);
+                        if (prevStepCheckbox.is(':checked')) {
+                            listItem.removeClass('disabled');
+                            if (step.id === 'step4') {
+                                // Step 4 checkbox is the only one directly interactive
+                                if (!checkbox.is(':checked')) {
+                                    checkbox.prop('disabled', false);
+                                } else {
+                                    checkbox.prop('disabled', true); // Keep disabled if already checked
+                                }
+                            } else {
+                                checkbox.prop('disabled', true); // Keep other checkboxes disabled
+                            }
+                            if (button) button.prop('disabled', false);
+                        } else {
+                            listItem.addClass('disabled');
+                            checkbox.prop('disabled', true);
+                            if (button) button.prop('disabled', true);
+                            checkbox.prop('checked', false); // Uncheck if previous is not checked
+                            listItem.removeClass('active');
+                        }
+                    }
+
+                    if (!checkbox.is(':checked')) {
+                        allChecked = false;
+                    }
+                }
+                confirmMembershipBtn.prop('disabled', !allChecked);
+            }
+
+            // Event Listeners for buttons/checkboxes
+            $('#step1 .view-presentation').on('click', function() {
+                $('#check1').prop('checked', true);
+                $('#step1').addClass('active');
+                updateChecklistStatus();
+                window.open('https://www.canva.com/design/DAGS6ChW-XQ/PJg7RdxAG-kDbVCBS8xujA/view?utm_content=DAGS6ChW-XQ&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hfe22c3fe6b', '_blank');
+            });
+
+            $('#step2 .view-video').on('click', function() {
+                $('#check2').prop('checked', true);
+                $('#step2').addClass('active');
+                updateChecklistStatus();
+                window.open('https://www.youtube.com/watch?v=oUSvaxyTbRg', '_blank');
+            });
+
+            $('#step3 .sign-agreement').on('click', function() {
+                $('#check3').prop('checked', true);
+                $('#step3').addClass('active');
+                updateChecklistStatus();
+                window.open('https://lem-membership.netlify.app/', '_blank');
+            });
+
+            $('#check4').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#step4').addClass('active');
+                    $(this).prop('disabled', true); // Disable after checking
+                } else {
+                    $('#step4').removeClass('active');
+                    // No need to re-enable if unchecked, as it should only be checked once
+                }
+                updateChecklistStatus();
+            });
+
+            $('#step5 .confirm-sent').on('click', function() {
+                $('#check5').prop('checked', true);
+                $('#step5').addClass('active');
+                updateChecklistStatus();
+            });
+
+            confirmMembershipBtn.on('click', function() {
+                if (!$(this).is(':disabled')) {
+                    // Confetti animation
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                    successMessage.fadeIn();
+                    $(this).prop('disabled', true); // Disable button after confirmation
+                }
+            });
+
+            // Initial status update
+            updateChecklistStatus();
+        });
+    </script>
 
 </body><!-- End of .page_wrapper -->
 </html>
