@@ -13442,3 +13442,60 @@ div#mCSB_1_container{
   height: 480px;
   border-radius: 5px;
 }
+
+/* Custom styles for lists in miembros.html */
+/* Custom styles for lists */
+.department-details-content .text ul.styled-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.department-details-content .text ul.styled-list li {
+    position: relative;
+    margin-bottom: 15px;
+    padding-left: 30px;
+    line-height: 1.6;
+}
+
+.department-details-content .text ul.styled-list li:last-child {
+    margin-bottom: 0;
+}
+
+.department-details-content .text ul.styled-list li::before {
+    content: '\f058'; /* Font Awesome checkmark icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900; /* For solid icon */
+    position: absolute;
+    left: 0;
+    top: 5px; /* Adjust vertical alignment */
+    color: #28a745; /* Green color for checkmark */
+    font-size: 18px; /* Adjust icon size */
+}
+
+.department-details-content .text ul.styled-list li h4 {
+    display: inline;
+    font-size: 20px; /* Keep original h4 size */
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.department-details-content .text ul.styled-list li h4 span {
+    font-weight: 700; /* Make the title bold */
+    color: #252638; /* Darker color for the title */
+}
+
+.department-details-content .text ul.styled-list li span {
+    display: block;
+    margin-top: 5px; /* Space between title and paragraph */
+    font-size: 16px; /* Keep original paragraph size */
+    color: #696b7e; /* Default text color */
+}
+
+.department-details-content .text ol {
+    list-style-type: decimal;
+    padding-left: 20px;
+}
+
+.department-details-content .text ol li {
+    margin-bottom: 8px;
+}
