@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://legal-es-mejor.com/sitemap.xml
+
+# Crawl delay (optional - helps prevent overloading the server)
+Crawl-delay: 1
